@@ -1,0 +1,20 @@
+{
+    "main": "lib/binding.js",
+    "dependencies": {
+        "node-addon-api": "^1.1.0"
+    },
+    "scripts": {
+        "test": "npm i && node lib/binding.ts",
+        "start": "node lib/binding.ts"
+    },
+    "gypfile": true,
+    "name": "openssl_addon",
+    "version": "1.0.0",
+    "description": "project for learn OpenSSL",
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@types/node": "^7.0.22",
+        "typescript": "^2.3.3"
+    }
+}
