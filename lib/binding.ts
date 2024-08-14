@@ -4,3 +4,5 @@ addon.opensslVersion()
 console.log('')
 addon.opensslHashHelp()
 
+console.log('')
+addon.GenRSA()

@@ -1,4 +1,7 @@
-build
-node_modules
-.vscode
-test
+/*
+!lib/*
+!src/*
+!binding.gyp
+!package-lock.json
+!package.json
+!tsconfig.json
