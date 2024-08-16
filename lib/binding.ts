@@ -6,3 +6,6 @@ addon.opensslHashHelp()
 
 console.log('')
 addon.GenRSA()
+
+console.log('')
+addon.GetCertificate('RU', 'LeoPC', 'LeoPC.com')
