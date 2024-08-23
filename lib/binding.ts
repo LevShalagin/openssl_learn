@@ -8,4 +8,4 @@ console.log('')
 addon.GenRSA()
 
 console.log('')
-addon.GetCertificate('RU', 'LeoPC')
+addon.GetCertificate('RU', 'LeoPC', 'LeoPC.com')
