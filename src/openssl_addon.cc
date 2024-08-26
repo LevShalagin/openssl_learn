@@ -73,13 +73,9 @@ void GetCertificate(const Napi::CallbackInfo& info) {
   ERR_load_BIO_strings();
   ERR_load_crypto_strings();
 
-  const char *country = (const char*) malloc (1000);
-  const char *org = (const char*) malloc (1000);
-  const char *domen = (const char*) malloc (1000);
-  
-  country = info[0].As<Napi::String>().Utf8Value().c_str();
-  org = info[1].As<Napi::String>().Utf8Value().c_str();
-  domen = info[2].As<Napi::String>().Utf8Value().c_str();
+  const char *country = info[0].As<Napi::String>().Utf8Value().c_str();
+  const char *org = info[1].As<Napi::String>().Utf8Value().c_str();
+  const char *domen = info[2].As<Napi::String>().Utf8Value().c_str();
 
   FILE *rsaFile = fopen("keys/private.pem", "r");
   if (!rsaFile) {
@@ -88,6 +84,7 @@ void GetCertificate(const Napi::CallbackInfo& info) {
   }
   
   EVP_PKEY *pkay = PEM_read_PrivateKey(rsaFile, NULL, NULL, NULL);
+  if(!pkay) {goto free_all;}
   fclose(rsaFile);
 
   X509_REQ *req = X509_REQ_new();
@@ -96,29 +93,37 @@ void GetCertificate(const Napi::CallbackInfo& info) {
   X509_NAME_add_entry_by_txt(name, "C", MBSTRING_ASC, (const unsigned char*)country, -1, -1, 0);
   X509_NAME_add_entry_by_txt(name, "O", MBSTRING_ASC, (const unsigned char*)org, -1, -1, 0);
   X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, (const unsigned char*)domen, -1, -1, 0);
-
+  
   X509_REQ_set_subject_name(req, name);
   
   X509 *cert = X509_new();
-  
+
   X509_set_version(cert, 2);
   X509_set_pubkey(cert, pkay);
+
+  X509_gmtime_adj(X509_get_notBefore(cert), 0);
+  X509_gmtime_adj(X509_get_notAfter(cert), 365 * 24 * 60 * 60);
+
   X509_REQ_sign(req, pkay, EVP_sha256());
 
   BIO* bio = BIO_new(BIO_s_file());
   BIO_set_fp(bio, fopen("certificates/certificate.csr", "wb"), BIO_NOCLOSE);
   PEM_write_bio_X509_REQ(bio, req);
-  
+  BIO_free(bio);
+
+  bio = BIO_new(BIO_s_file());
+  BIO_set_fp(bio, fopen("certificates/certificate.crt", "wb"), BIO_NOCLOSE);
+  PEM_write_bio_X509(bio, cert);
+  BIO_free(bio);
+
   free_all:
-    free(&country);
-    free(&org);
-    free(&domen);
+  X509_REQ_free(req);
+  X509_NAME_free(name);
+  X509_free(cert);
 
-    BIO_free(bio);
-    X509_REQ_free(req);
-    X509_NAME_free(name);
-    X509_free(cert);
-
+  for(int i = 0; i<3; i++) {
+    printf("[%d] %s\n", i, info[i].As<Napi::String>().Utf8Value().c_str());
+  }
 }
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {

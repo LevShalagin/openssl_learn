@@ -1,11 +1,10 @@
 const addon = require('../build/Release/openssl_addon-native')
 
+
+console.log('-----------------------------------')
 addon.opensslVersion()
-console.log('')
+console.log('-----------------------------------')
 addon.opensslHashHelp()
-
-console.log('')
-addon.GenRSA()
-
-console.log('')
+console.log('-----------------------------------')
 addon.GetCertificate('RU', 'LeoPC', 'LeoPC.com')
+console.log('-----------------------------------')
